@@ -1,33 +1,56 @@
-var userFormEl = document.querySelector('#user-form'); var nameInputEl =
-document.querySelector('#username'); var repoContainerEl =
-document.querySelector('#repos-container'); var repoSearchTerm =
-document.querySelector('#repo-search-term'); var formSubmitHandler =
-function(event) { // prevent page from refreshing event.preventDefault(); // get
-value from input element var username = nameInputEl.value.trim(); if (username)
-{ getUserRepos(username); // clear old content repoContainerEl.textContent = '';
-nameInputEl.value = ''; } else { alert('Please enter a GitHub username'); } };
-var getUserRepos = function(user) { // format the github api url var apiUrl =
-'https://api.github.com/users/' + user + '/repos'; // make a get request to url
-fetch(apiUrl) .then(function(response) { // request was successful if
-(response.ok) { console.log(response); response.json().then(function(data) {
-console.log(data); displayRepos(data, user); }); } else { alert('Error: GitHub
-User Not Found'); } }) .catch(function(error) { alert('Unable to connect to
-GitHub'); }); }; var displayRepos = function(repos, searchTerm) { // check if
-api returned any repos if (repos.length === 0) { repoContainerEl.textContent =
-'No repositories found.'; return; } repoSearchTerm.textContent = searchTerm; //
-loop over repos for (var i = 0; i < repos.length; i++) { // format repo name var
-repoName = repos[i].owner.login + '/' + repos[i].name; // create a container for
-each repo var repoEl = document.createElement('div'); repoEl.classList =
-'list-item flex-row justify-space-between align-center'; // create a span
-element to hold repository name var titleEl = document.createElement('span');
-titleEl.textContent = repoName; // append to container
-repoEl.appendChild(titleEl); // create a status element var statusEl =
-document.createElement('span'); statusEl.classList = 'flex-row align-center'; //
-check if current repo has issues or not if (repos[i].open_issues_count > 0) {
-statusEl.innerHTML = "<i class="fas fa-times status-icon icon-danger"></i>" +
-repos[i].open_issues_count + ' issue(s)'; } else { statusEl.innerHTML = "<i
-  class="fas fa-check-square status-icon icon-success"
-></i
->"; } // append to container repoEl.appendChild(statusEl); // append container
-to the dom repoContainerEl.appendChild(repoEl); } }; // add event listeners to
-forms userFormEl.addEventListener('submit', formSubmitHandler);
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <title>Git it Done</title>
+  </head>
+
+  <body class="flex-column min-100-vh">
+    <header class="hero">
+      <h1 class="app-title"><i class="fab fa-github"></i> Git it Done!</h1>
+      <p>
+        Search for a GitHub user or click on a language to see a list of
+        repositories and how many open issues they have!
+      </p>
+    </header>
+
+    <main class="flex-row justify-space-between">
+      <div class="col-12 col-md-4">
+        <div class="card">
+          <h3 class="card-header text-uppercase">Search By User</h3>
+          <form id="user-form" class="card-body">
+            <label class="form-label" for="username">Username</label>
+            <input
+              name="username"
+              id="username"
+              type="text"
+              autofocus="true"
+              class="form-input"
+            />
+            <button type="submit" class="btn">Get User</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-8">
+        <h2 class="subtitle">
+          Showing Repositories for: <span id="repo-search-term"></span>
+        </h2>
+        <div id="repos-container" class="list-group"></div>
+      </div>
+    </main>
+
+    <script src="./assets/js/homepage.js"></script>
+  </body>
+</html>
